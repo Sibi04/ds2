@@ -1,0 +1,397 @@
+#FIND -S 
+
+import csv
+hypo = ['%','%','%','%','%','%'];
+
+with open('trainingdata.csv') as csv_file:
+    readcsv = csv.reader(csv_file, delimiter=',')
+    print(readcsv)
+
+    data = []
+    print("\nThe given training examples are:")
+    for row in readcsv:
+        print(row)
+        if row[len(row)-1].upper() == "YES":
+            data.append(row)
+
+print("\nThe positive examples are:");
+for x in data:
+    print(x);
+print("\n");
+
+TotalExamples = len(data);
+i=0;
+j=0;
+k=0;
+print("The steps of the Find-s algorithm are :\n",hypo);
+list = [];
+p=0;
+d=len(data[p])-1;
+for j in range(d):
+    list.append(data[i][j]);
+hypo=list;
+i=1;
+for i in range(TotalExamples):
+    for k in range(d):
+        if hypo[k]!=data[i][k]:
+            hypo[k]='?';
+            k=k+1;
+        else:
+            hypo[k];
+    print(hypo);
+i=i+1;
+
+print("\nThe maximally specific Find-s hypothesis for the given training examples is :");
+list=[];
+for i in range(d):
+    list.append(hypo[i]);
+print(list);
+
+___________________________________________________________________________________________
+#KNN
+
+1)
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.neighbors import KNeighborsClassifier
+
+# Load the dataset
+data = pd.read_csv('Data.csv')
+
+# Convert 'Income' to numeric format
+data['Income'] = data['Income'].replace('[\$,]', '', regex=True).astype(float)
+
+# Extract features and target variable
+X = data[['Age', 'Income']]
+y = data['Risk']
+
+# Standardize the features using Min-Max scaling
+scaler = MinMaxScaler()
+X_scaled = scaler.fit_transform(X)
+
+# New record (#10) to classify
+new_record = pd.DataFrame({'Age': [30], 'Income': [30000]})
+new_record_scaled = scaler.transform(new_record)
+
+# Calculate distances using Euclidean distance
+distances = ((X_scaled - new_record_scaled) ** 2).sum(axis=1) ** 0.5
+print(distances)
+# Sort distances and get the indices of the k-nearest neighbors
+k = 9
+nearest_neighbors_indices = distances.argsort()[:k]
+
+# Use unweighted voting to classify the new record
+predicted_class = y.iloc[nearest_neighbors_indices].mode().values[0]
+
+print("Predicted Risk for the new record (#10):", predicted_class)
+
+2)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+# Load the dataset
+data = pd.read_csv('data4_19.csv')
+
+# Extract features and target variable
+X = data.iloc[:, :4]
+y = data.iloc[:, 4]
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create a KNN classifier
+k_values = [1, 3, 5, 7]  # You can try different values of k
+best_k = None
+best_accuracy = 0
+
+for k in k_values:
+    model = KNeighborsClassifier(n_neighbors=k)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+
+    print(f"Accuracy for k={k}: {accuracy}")
+
+    # Update the best k if needed
+    if accuracy > best_accuracy:
+        best_accuracy = accuracy
+        best_k = k
+
+# Use the best k to predict the species of the new flower
+new_flower = [[5.2, 3.1, 1.4, 0.2]]
+model = KNeighborsClassifier(n_neighbors=best_k)
+model.fit(X, y)
+predicted_species = model.predict(new_flower)
+
+print(f"The predicted species for the new flower is: {predicted_species[0]} (with k={best_k})")
+____________________________________________________________________________________________
+#decision
+
+with tree
+from sklearn.tree import DecisionTreeClassifier
+from sklearn import tree
+import pandas as pd
+data=pd.read_csv("data4_19.csv")
+attributes=data.iloc[:,:4].values
+labels=data.iloc[:,4].values
+dtree=DecisionTreeClassifier()
+dtree.fit(attributes,labels)
+features=['sepal-length','sepal-width','petal-length','petal-wdith']
+tree.plot_tree(dtree,feature_names=features)
+----------------------------------------------------------------------------------------------------
+#decision tree
+
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+import pandas as pd
+
+# Create a hypothetical dataset with categorical variables
+data = {
+    'Outlook': ['Sunny', 'Sunny', 'Overcast', 'Rainy', 'Rainy', 'Rainy', 'Overcast', 'Sunny', 'Sunny', 'Rainy', 'Sunny', 'Overcast', 'Overcast', 'Rainy'],
+    'Temperature': ['Hot', 'Hot', 'Hot', 'Mild', 'Cool', 'Cool', 'Cool', 'Mild', 'Cool', 'Mild', 'Mild', 'Mild', 'Hot', 'Mild'],
+    'Humidity': ['High', 'High', 'High', 'High', 'Normal', 'Normal', 'Normal', 'High', 'Normal', 'Normal', 'Normal', 'High', 'Normal', 'High'],
+    'Windy': ['No', 'Yes', 'No', 'No', 'No', 'Yes', 'Yes', 'No', 'No', 'No', 'Yes', 'Yes', 'No', 'Yes'],
+    'Play Golf': ['No', 'No', 'Yes', 'Yes', 'Yes', 'No', 'Yes', 'No', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'No']
+}
+
+# Convert the dictionary to a Pandas DataFrame
+df = pd.DataFrame(data)
+
+# Separate features (X) and target variable (y)
+X = df.drop('Play Golf', axis=1)
+y = df['Play Golf']
+
+# One-hot encode categorical variables
+encoder = OneHotEncoder(sparse=False, drop='first')
+X_encoded = encoder.fit_transform(X)
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=42)
+
+# Create a Decision Tree classifier
+clf = DecisionTreeClassifier()
+clf.fit(X_train, y_train)
+accuracy = clf.score(X_test, y_test)
+print("Accuracy:", accuracy)
+# Now, let's make predictions on new data
+new_data = {
+    'Outlook': ['Sunny'],
+    'Temperature': ['Mild'],
+    'Humidity': ['Normal'],
+    'Windy': ['No']
+}
+new_df = pd.DataFrame(new_data)
+new_df_encoded = encoder.transform(new_df)
+prediction = clf.predict(new_df_encoded)
+print("Predicted Play Golf:", prediction[0])
+tree_structure = clf.tree_
+plot_tree(clf, filled=True, feature_names=encoder.get_feature_names_out(X.columns), class_names=clf.classes_)
+_________________________________________________________________________________________________________________
+#kmeans
+
+1.
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+x=np.array([1,2,3,4,7,6,7,10,11,12])
+y=np.array([1,3,6,5,11,10,12,15,16,15])
+data=list(zip(x,y))
+# data=pd.read_csv("data4_19.csv")
+# attributes=data.iloc[:,:4].values
+# labels=data.iloc[:,4].values
+inertias=[]
+for i in range(1,7):
+    kmeans=KMeans(n_clusters=i)
+    kmeans.fit(attributes)
+    inertias.append(kmeans.inertia_)
+plt.scatter(range(1,7),inertias)
+plt.xlabel("Value for k")
+plt.ylabel("Inertia")
+plt.show()
+
+2.
+kmeans=KMeans(n_clusters=3)
+kmeans.fit(data)
+plt.scatter(x,y,c=kmeans.labels_)
+plt.show()
+print(kmeans.cluster_centers_)
+----------------------------------------------------------------------------------
+
+import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.metrics import jaccard_score
+from sklearn.preprocessing import LabelEncoder
+
+data = pd.read_csv('iris.csv')
+X = data.iloc[:, :4]
+
+ground_truth_labels = data.iloc[:, -1]
+
+kmeans = KMeans(n_clusters=3, init='random', n_init=1, random_state=42)
+
+kmeans.fit(X)
+
+cluster_centroids = kmeans.cluster_centers_
+
+cluster_assignments = kmeans.labels_
+
+label_encoder = LabelEncoder()
+ground_truth_encoded = label_encoder.fit_transform(ground_truth_labels)
+
+jaccard_distances = []
+for cluster_num in range(3):
+    cluster_indices = np.where(cluster_assignments == cluster_num)[0]
+    ground_truth_cluster = ground_truth_encoded[cluster_indices]
+    jaccard_distance = 1.0 - jaccard_score(ground_truth_cluster, np.full_like(ground_truth_cluster, cluster_num), average='weighted')
+    jaccard_distances.append(jaccard_distance)
+
+for cluster_num, centroid in enumerate(cluster_centroids):
+    print(f"Cluster {cluster_num + 1} Centroid: {centroid}")
+    print(f"Jaccard Distance for Cluster {cluster_num + 1}: {jaccard_distances[cluster_num]}")
+______________________________________________________________________________________________________
+
+#linear
+1)
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+import matplotlib.pyplot as plt
+
+data=pd.read_csv('ds.csv')
+age=data['Age']
+chd=data['Coronary-Heart-Disease']
+x=age.values.reshape(-1,1)
+y=chd.values
+
+
+model=LinearRegression()
+model.fit(x,y)
+a=model.score(x,y)
+print(a)
+pred=model.predict(x)
+a=np.array([[41]])
+plt.scatter(x,y)
+plt.plot(x,pred)
+plt.show()
+
+2)
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
+x=np.array([0.734 ,0.886, 1.04 ,1.19, 1.35 ,1.50 ,1.66, 1.81 ,1.97, 2.12]).reshape(-1,1)
+y=np.array([1.1 ,1.2 ,1.3 ,1.4, 1.5 ,1.6, 1.7 ,1.8, 1.9 ,2.0])
+
+model=LinearRegression()
+model.fit(x,y)
+
+yp=model.predict(x)
+
+plt.scatter(x,y)
+plt.plot(x,yp)
+plt.show()
+
+3)
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
+
+data={'Diameter':[1 ,2 ,3 ,1 ,2, 3 ,1, 2 ,3],
+      'Slope':[0.001 ,0.001 ,0.001 ,0.01 ,0.01 ,0.01 ,0.05, 0.05, 0.05],
+      'Flow':[1.4, 8.3 ,24.2 ,4.7, 28.9 ,84.0, 11.1, 69.0 ,200.0]}
+df=pd.DataFrame(data)
+
+x=df[['Diameter','Slope']]
+y=df['Flow']
+model=LinearRegression()
+model.fit(x,y)
+p=np.array([[2.5,0.025]])
+yp=model.predict(p)
+print(yp[0])
+a1,a2=model.coef_
+a0=model.intercept_
+
+print(a0,a1,a2)
+____________________________________________________________________________
+#mlp.txt
+1)
+from sklearn.neural_network import MLPClassifier
+import numpy as np
+
+# Define the XOR input data and corresponding labels
+X = np.array([[0, 0],
+              [0, 1],
+              [1, 0],
+              [1, 1]])
+
+y = np.array([0, 1, 1, 0])
+
+# Create an MLPClassifier with one hidden layer of 4 neurons (you can adjust this)
+mlp = MLPClassifier(hidden_layer_sizes=(2,1), max_iter=1000)
+
+# Train the model
+mlp.fit(X, y)
+
+# Test the model
+predictions = mlp.predict(X)
+
+# Print the predictions
+print("Predictions:", predictions)
+
+# Print the accuracy
+accuracy = np.mean(predictions == y)
+print("Accuracy:", accuracy)
+2)
+import numpy as np
+e=2.71828
+i1=0.05
+i2=0.1
+w1=0.15
+w2=0.2
+w3=0.25
+w4=0.3
+w5=0.4
+w6=0.45
+w7=0.5
+w8=0.55
+b1=0.35
+b2=0.6
+num=10000
+target1=0.01
+target2=0.99
+lr=0.8
+for i in range(num):
+    h1=(i1*w1+i2*w3)+b1
+    h2=(i1*w2+i2*w4)+b1
+    import math
+    act1=1/(1+math.pow(e,-h1))
+    act2=1/(1+math.pow(e,-h2))
+
+    h_o1=(act1*w5+act2*w7)+b2
+    h_o2=(act1*w6+act2*w8)+b2
+    o1=1/(1+math.pow(e,-h_o1))
+    o2=1/(1+math.pow(e,-h_o2))
+
+    delta_o1=-(target1-o1)o1(1-o1)
+    delta_o2=-(target2-o2)o2(1-o2)
+    delta_h1=((delta_o1*w5)+(delta_o2*w6))act1(1-act1)
+    delta_h2=((delta_o1*w7)+(delta_o2*w8))act2(1-act2)
+    w5-=lr*(delta_o1*act1)
+    w6-=lr*(delta_o2*act1)
+    w7-=lr*(delta_o1*act2)
+    w8-=lr*(delta_o2*act2)
+
+    w1-=lr*(delta_h1*i1)
+    w2-=lr*(delta_h2*i1)
+    w3-=lr*(delta_h1*i2)
+    w4-=lr*(delta_h2*i2)
+print(target1-o1,target2-o2)
+print(f" w1={w1: .4f} , w2={w2: .4f} ,w3={w3: .4f} ,w4={w4: .4f} ,w5={w5: .4f} ,w6={w6: .4f}, w7={w7: .4f}, w8={w8: .4f}")
+________________________________________________________________________________________________________
